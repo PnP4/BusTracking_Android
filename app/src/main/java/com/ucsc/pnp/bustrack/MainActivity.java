@@ -1,5 +1,11 @@
 package com.ucsc.pnp.bustrack;
 
+import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,9 +15,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivity extends AppCompatActivity {
 
-    @Override 
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -48,5 +59,51 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    class AlertReceive extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String msg=intent.getStringExtra("Alert");
+            try {
+                JSONObject obj = new JSONObject(msg);
+                JSONArray objarr=obj.getJSONArray("alert");
+                if(objarr.length()>0){
+                    for(int i=0;i<objarr.length();i++){
+                        JSONObject tempobj= (JSONObject) objarr.get(i);
+                        String alertType=tempobj.getString("alerttype");
+                        if(alertType.equals("Overspeed")){
+                            showDialog("OverSpeed :- "+tempobj.getDouble("maxspeed")+" Kmph ");
+                        }
+                        else if (alertType.equals("Over waiting")){
+                            showDialog("Over waiting :- "+tempobj.getString("regno")+" ");
+                        }
+
+
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        public void showDialog(String alertmsg) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+
+            builder.setMessage(alertmsg);
+
+            builder.setPositiveButton("DONE ", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                    dialog.dismiss();
+                }
+            });
+
+            builder.show();
+        }
+
     }
 }
