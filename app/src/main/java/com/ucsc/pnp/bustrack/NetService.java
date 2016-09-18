@@ -35,70 +35,81 @@ Context servicecontext;
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 
-        Runnable runnable=new Runnable() {
+
+
+        Runnable mainThreadrunnable=new Runnable() {
             @Override
             public void run() {
-                Socket socket = null;
 
-                try {
-                    socket = new Socket("192.34.63.88", 8072);
+                Runnable runnable=new Runnable() {
+                    @Override
+                    public void run() {
+                        Socket socket = null;
 
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
-                            1024*1024);
-                    byte[] buffer = new byte[1024*1024];
+                        try {
+                            socket = new Socket("192.34.63.88", 8072);
 
-                    int bytesRead;
-                    InputStream inputStream = socket.getInputStream();
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream(
+                                    1024*1024);
+                            byte[] buffer = new byte[1024*1024];
+
+                            int bytesRead;
+                            InputStream inputStream = socket.getInputStream();
 
          /*
           * notice: inputStream.read() will block if no data return
           */
-                    bytesRead = inputStream.read(buffer);
-                    Log.e("Service","Data In");
-                    byteArrayOutputStream.write(buffer, 0, bytesRead);
-                    String data=byteArrayOutputStream.toString("UTF-8");
+                            bytesRead = inputStream.read(buffer);
+                            Log.e("Service","Data In");
+                            byteArrayOutputStream.write(buffer, 0, bytesRead);
+                            String data=byteArrayOutputStream.toString("UTF-8");
 
-                    Intent intent = new Intent();
-                    intent.putExtra("data", data);
-                    intent.setAction("com.ucsc.pnp.bustrack.CUSTOM");
-                    sendBroadcast(intent);
-                    Log.e("Service",data);
+                            Intent intent = new Intent();
+                            intent.putExtra("data", data);
+                            intent.setAction("com.ucsc.pnp.bustrack.CUSTOM");
+                            sendBroadcast(intent);
+                            Log.e("Service",data);
 
-                } catch (UnknownHostException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                        } catch (UnknownHostException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
 
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-
-                } finally {
-                    if (socket != null) {
-                        try {
-                            socket.close();
                         } catch (IOException e) {
                             // TODO Auto-generated catch block
                             e.printStackTrace();
+
+                        } finally {
+                            if (socket != null) {
+                                try {
+                                    socket.close();
+                                } catch (IOException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+                            }
                         }
+
                     }
+                };
+
+
+                for (int k=0;true;k++) {
+
+                    try {
+                        Thread.sleep(1000,0);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    Thread thread = new Thread(runnable);
+                    thread.start();
+
                 }
 
             }
         };
-
-
-        for (int k=0;k<1;k++) {
-
-            try {
-                Thread.sleep(1000,0);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            Thread thread = new Thread(runnable);
-            thread.start();
-
-        }
+        Thread mainthread=new Thread(mainThreadrunnable);
+        mainthread.start();
 
         return START_STICKY;
     }
