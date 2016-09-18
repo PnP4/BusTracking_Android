@@ -15,11 +15,19 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
+
+    private GoogleMap googlemap;
+    private Marker busmarker;
 
 
     @Override
@@ -77,7 +85,17 @@ public class MainActivity extends AppCompatActivity {
                             showDialog("OverSpeed :- "+tempobj.getDouble("maxspeed")+" Kmph ");
                         }
                         else if (alertType.equals("Over waiting")){
-                            showDialog("Over waiting :- "+tempobj.getString("regno")+" ");
+                            JSONObject tempobjpos=tempobj.getJSONObject("movedata");
+
+                            LatLng pos=new LatLng(tempobjpos.getDouble("lat"),tempobjpos.getDouble("lon"));
+                            showDialog("Over waiting :- " + tempobj.getString("regno")+" ");
+                            if(busmarker==null) {
+                                busmarker = googlemap.addMarker(new MarkerOptions().position(pos));
+                            }
+                            else{
+                                busmarker.setPosition(pos);
+                            }
+
                         }
 
 
