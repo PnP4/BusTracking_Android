@@ -116,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
                             showDialog("Over waiting :- " + tempobj.getString("regno")+" ");
                             if(busmarker==null) {
                                 busmarker = googlemap.addMarker(new MarkerOptions().position(pos));
+                                busmarker.setPosition(pos);
+                                Log.e("TAG","In null");
 
                             }
                             else{
