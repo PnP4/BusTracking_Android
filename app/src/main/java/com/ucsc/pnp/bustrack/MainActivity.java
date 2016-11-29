@@ -100,15 +100,20 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Service", msg);
             try {
                 JSONObject obj = new JSONObject(msg);
-                JSONArray objarr=obj.getJSONArray("alert");
-                if(objarr.length()>0){
-                    for(int i=0;i<objarr.length();i++){
-                        JSONObject tempobj= (JSONObject) objarr.get(i);
-                        String alertType=tempobj.getString("alerttype");
-                        if(alertType.equals("Overspeed")){
+                //JSONArray objarr=obj.getJSONArray("alert");
+                JSONObject objarr = null;
+                objarr = new JSONObject(obj.getString("overwaiting"));
+
+                //if(objarr.length()>0){
+                   // for(int i=0;i<objarr.length();i++){
+                        JSONObject tempobj= (JSONObject) objarr;//.get(i);
+                        //String alertType=tempobj.getString("alerttype");
+                        if(tempobj == null){//alertType.equals("Overspeed")){
+                            objarr = new JSONObject(obj.getString("overspeed"));
+                            tempobj= (JSONObject) objarr;
                             showDialog("OverSpeed :- "+tempobj.getDouble("maxspeed")+" Kmph ");
                         }
-                        else if (alertType.equals("Over waiting")){
+                        else {//if (alertType.equals("Over waiting")){
                             JSONObject tempobjpos=tempobj.getJSONObject("movedata");
 
                             LatLng pos=new LatLng(tempobjpos.getDouble("lat"),tempobjpos.getDouble("lon"));
@@ -120,15 +125,15 @@ public class MainActivity extends AppCompatActivity {
                                 Log.e("TAG","In null");
 
                             }
-                            else{
-                                busmarker.setPosition(pos);
+                            //else{
+                                //busmarker.setPosition(pos);
 
-                            }
+                            //}
 
-                        }
+                       // }
 
 
-                    }
+                    //}
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
